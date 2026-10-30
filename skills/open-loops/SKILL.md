@@ -70,6 +70,22 @@ list, close it).
 - If your answer resolves an item on the list, say so at the end and check it off.
 - If the user asks what is open, list it briefly: one line per item, with the decision needed.
 
+## Scanning past sessions
+
+When the user asks to scan earlier conversations ("scan old sessions", "eski sohbetleri tara", …), or the list is new
+and the project already has history:
+
+1. Condense: `python3 ~/.claude/scripts/open_loops_scan.py --out <scratch>/scan.md` (default: sessions changed since the
+   last scan, first run the last 14 days; `--days N` or `--all` to widen). It keeps only each user message and Claude's
+   final answer, oldest first, skipping the current session. It moves the last-scan mark unless `--no-mark`.
+2. Read the file (in parts if large; over ~150k chars hand it to a subagent with this section as its brief and take back
+   only the candidate list).
+3. A candidate is an open loop only if it was **never closed later**: read forward — a later session may have answered,
+   fixed or dropped it. When unsure whether something was done, check the repo (`git log --grep`, the code) before adding.
+4. Add the survivors to the list like any other item, with the source: `(from session <first 8 chars>, dd.mm)`. Skip
+   anything already on the list.
+5. Tell the user in a few lines: how many sessions were read, what was added, and what you dropped as already done.
+
 ## Telling the user
 
 When you add an item, end your answer with one line: `Added to open loops: <short name> (#<issue>)`, in the user's

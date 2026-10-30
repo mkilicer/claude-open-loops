@@ -10,6 +10,8 @@ your yes/no. Opening an issue for them is exactly the step everyone forgets.
   a single GitHub issue labelled `open-loops`, or `~/.claude/open-loops/<folder>.md` when there is no repo.
 - A **SessionStart hook** feeds the unchecked items back at the start of every session; Claude reminds you in one line.
 - Resolved items are checked off with their outcome.
+- **Scan past sessions:** ask "scan old sessions" and Claude reads this project's earlier Claude Code conversations
+  (condensed by `open_loops_scan.py` to user messages + final answers), keeps only what was never closed later, and adds it.
 - **Multilingual:** items and reminders are written in whatever language you talk to Claude in. The mechanism
   (label, file path, checkboxes) is language-independent, and the skill triggers on "what's left?" in any language
   ("neler kaldı", "offene Punkte", "pendientes", "en suspens"…).
@@ -20,7 +22,8 @@ your yes/no. Opening an issue for them is exactly the step everyone forgets.
 git clone https://github.com/mkilicer/claude-open-loops
 mkdir -p ~/.claude/skills ~/.claude/scripts
 cp -r claude-open-loops/skills/open-loops ~/.claude/skills/
-cp claude-open-loops/hooks/open_loops_hook.sh ~/.claude/scripts/ && chmod +x ~/.claude/scripts/open_loops_hook.sh
+cp claude-open-loops/hooks/open_loops_hook.sh claude-open-loops/hooks/open_loops_scan.py ~/.claude/scripts/
+chmod +x ~/.claude/scripts/open_loops_hook.sh ~/.claude/scripts/open_loops_scan.py
 ```
 
 Add the hook to `~/.claude/settings.json`:
