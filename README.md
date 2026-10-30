@@ -1,50 +1,49 @@
-# acik-konular — Claude Code için açık uç takibi
+# open-loops — a Claude Code skill that never lets a loose end drop
 
-Bir konuyu konuşurken başka konuya atlayınca geride kalanlar unutuluyor: cevaplanmamış sorular, Claude'un bulduğu ama
-düzeltilmemiş hatalar, onay bekleyen öneriler. Issue açmayı hatırlamak da kullanıcıya kalınca açılmıyor.
+You ask Claude something, the conversation jumps to another topic, and the loose ends of the first one are gone:
+the question Claude asked that you never answered, the bug it spotted on the side, the proposal still waiting for
+your yes/no. Opening an issue for them is exactly the step everyone forgets.
 
-Bu beceri yakalama işini Claude'a verir:
+**open-loops makes capturing them Claude's job, not yours.**
 
-- Konu değişince geride açık uç kaldıysa Claude **sormadan** projenin tek "Açık konular" listesine yazar
-  (GitHub'da `acik-konu` etiketli tek issue; depo yoksa `~/.claude/acik-konular/<klasör>.md`).
-- Her oturum açılışında SessionStart kancası açık maddeleri Claude'a verir; Claude ilk cevabında tek satırla hatırlatır.
-- Çözülen madde işaretlenir, sonucu yazılır.
+- When you switch topics and something is left open, Claude adds it — without asking — to **one list per project**:
+  a single GitHub issue labelled `open-loops`, or `~/.claude/open-loops/<folder>.md` when there is no repo.
+- A **SessionStart hook** feeds the unchecked items back at the start of every session; Claude reminds you in one line.
+- Resolved items are checked off with their outcome.
+- **Multilingual:** items and reminders are written in whatever language you talk to Claude in. The mechanism
+  (label, file path, checkboxes) is language-independent, and the skill triggers on "what's left?" in any language
+  ("neler kaldı", "offene Punkte", "pendientes", "en suspens"…).
 
-## Kurulum
+## Install
 
 ```bash
-git clone https://github.com/mkilicer/claude-acik-konular
+git clone https://github.com/mkilicer/claude-open-loops
 mkdir -p ~/.claude/skills ~/.claude/scripts
-cp -r claude-acik-konular/skills/acik-konular ~/.claude/skills/
-cp claude-acik-konular/hooks/acik_konular_hook.sh ~/.claude/scripts/ && chmod +x ~/.claude/scripts/acik_konular_hook.sh
+cp -r claude-open-loops/skills/open-loops ~/.claude/skills/
+cp claude-open-loops/hooks/open_loops_hook.sh ~/.claude/scripts/ && chmod +x ~/.claude/scripts/open_loops_hook.sh
 ```
 
-`~/.claude/settings.json` içine kanca:
+Add the hook to `~/.claude/settings.json`:
 
 ```json
 "hooks": {
   "SessionStart": [
-    { "hooks": [ { "type": "command", "command": "~/.claude/scripts/acik_konular_hook.sh", "timeout": 15 } ] }
+    { "hooks": [ { "type": "command", "command": "~/.claude/scripts/open_loops_hook.sh", "timeout": 15 } ] }
   ]
 }
 ```
 
-Becerinin kendiliğinden devreye girmesi için `~/.claude/CLAUDE.md`'ye bir satır:
+So the skill fires on its own when topics change, add one line to `~/.claude/CLAUDE.md`:
 
 ```markdown
-- Kullanıcı konu değiştirince geride kalan cevapsız soruyu, bulduğun hatayı ya da onay bekleyen önerini sormadan
-  projenin "Açık konular" listesine yaz (`acik-konular` becerisi).
+- When I change topics, add any unanswered question, bug you found or proposal awaiting my decision to the project's
+  open-loops list without asking (`open-loops` skill).
 ```
 
-Gerekenler: `gh` (giriş yapılmış), `python3`.
+Requires `gh` (logged in) and `python3`.
 
----
+## Why
 
-## English summary
-
-**Open-loop tracking for Claude Code.** When a conversation jumps to a new topic, unanswered questions, bugs Claude found
-but didn't fix, and proposals awaiting approval get lost — and nobody remembers to open an issue. This skill makes
-capturing them Claude's job: on topic change Claude appends them (without asking) to a single per-project
-"open topics" list (one GitHub issue labelled `acik-konu`, or a local markdown file when there is no repo). A
-SessionStart hook feeds the unchecked items back at the start of every session so Claude reminds the user in one line.
-The skill text is in Turkish; the mechanism is language-agnostic.
+Built after a long trading-bot session where several findings and pending decisions silently disappeared behind
+new questions. Existing options (TodoWrite, task-management, session-handoff) all depend on the user remembering to
+trigger them — which is the very thing that fails.
